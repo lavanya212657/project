@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Local Volunteer Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --green: #2F6B4F;
+    --green-dark: #1F4E39;
+    --green-light: #EAF3EC;
+    --green-pale: #F5FAF6;
+    --charcoal: #26302B;
+    --text-muted: #5B6B62;
+    --white: #FFFFFF;
+    --accent: #E7A65C;
+    --border: #DCEAE1;
+    --radius: 14px;
+    --shadow: 0 4px 18px rgba(38,48,43,0.08);
+    --shadow-lg: 0 10px 30px rgba(38,48,43,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Inter', sans-serif;
+    color:var(--charcoal);
+    background:var(--white);
+    line-height:1.6;
+  }
+  h1,h2,h3,.brand-name{font-family:'Poppins',sans-serif;}
+  img,svg{display:block;}
+  a{text-decoration:none; color:inherit;}
+  ul{list-style:none;}
+  button{font-family:inherit; cursor:pointer; border:none;}
+  .container{max-width:1180px; margin:0 auto; padding:0 24px;}
+  .visually-hidden{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0);}
+
+  /* Buttons */
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding:13px 26px; border-radius:10px; font-weight:600; font-size:0.96rem;
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .btn-primary{background:var(--green); color:#fff;}
+  .btn-primary:hover{background:var(--green-dark); box-shadow:var(--shadow);}
+  .btn-secondary{background:var(--green-pale); color:var(--green-dark); border:1px solid var(--border);}
+  .btn-secondary:hover{background:var(--green-light);}
+  .btn-outline{background:transparent; color:var(--green-dark); border:1px solid var(--green);}
+  .btn-outline:hover{background:var(--green-light);}
+  .btn-block{width:100%;}
+
+  /* Header */
+  header{
+    position:sticky; top:0; z-index:50; background:rgba(255,255,255,0.94);
+    backdrop-filter:blur(8px); border-bottom:1px solid var(--border);
+  }
+  .nav{display:flex; align-items:center; justify-content:space-between; padding:16px 0;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-icon{
+    width:38px; height:38px; border-radius:10px; background:var(--green-light);
+    display:flex; align-items:center; justify-content:center; color:var(--green-dark);
+  }
+  .brand-name{font-size:1.08rem; font-weight:600; color:var(--charcoal);}
+  .nav-links{display:flex; align-items:center; gap:30px;}
+  .nav-links a{font-size:0.95rem; font-weight:500; color:var(--text-muted); transition:color .15s;}
+  .nav-links a:hover{color:var(--green-dark);}
+  .nav-cta{display:flex; align-items:center; gap:18px;}
+  .hamburger{display:none; flex-direction:column; gap:5px; padding:6px;}
+  .hamburger span{width:22px; height:2px; background:var(--charcoal); border-radius:2px;}
+  .mobile-menu{display:none; flex-direction:column; gap:2px; padding:8px 0 18px;}
+  .mobile-menu a{padding:12px 0; font-weight:500; color:var(--charcoal); border-bottom:1px solid var(--border);}
+  .mobile-menu.open{display:flex;}
+
+  /* Hero */
+  .hero{background:linear-gradient(180deg, var(--green-pale) 0%, #fff 100%); padding:64px 0 40px;}
+  .hero-inner{text-align:center; max-width:720px; margin:0 auto;}
+  .hero h1{font-size:2.4rem; font-weight:700; line-height:1.2; color:var(--charcoal); margin-bottom:16px;}
+  .hero p{font-size:1.08rem; color:var(--text-muted); margin-bottom:10px;}
+  .hero .tagline{font-size:0.9rem; color:var(--green-dark); font-weight:500; margin-bottom:36px;}
+
+  /* Search card */
+  .search-card{
+    background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+    box-shadow:var(--shadow-lg); padding:28px; max-width:980px; margin:0 auto;
+  }
+  .search-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:16px;}
+  .field{text-align:left;}
+  .field label{display:block; font-size:0.86rem; font-weight:600; color:var(--charcoal); margin-bottom:7px;}
+  .input-wrap{position:relative;}
+  .input-wrap input, .field select{
+    width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:9px;
+    font-size:0.94rem; font-family:inherit; color:var(--charcoal); background:#fff;
+    transition:border-color .15s;
+  }
+  .input-wrap input{padding-left:38px;}
+  .input-wrap input:focus, .field select:focus{outline:2px solid var(--green); outline-offset:1px; border-color:var(--green);}
+  .input-wrap .pin{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--green); font-size:0.95rem;}
+  .search-actions{margin-top:20px;}
+
+  /* Section headings */
+  .section{padding:64px 0;}
+  .section-alt{background:var(--green-pale);}
+  .section-head{text-align:center; max-width:560px; margin:0 auto 40px;}
+  .section-head h2{font-size:1.75rem; font-weight:700; margin-bottom:10px;}
+  .section-head p{color:var(--text-muted); font-size:1rem;}
+  .results-meta{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-bottom:26px;}
+  .results-count{font-weight:600; color:var(--green-dark);}
+
+  /* Cards grid */
+  .cards-grid{display:grid; grid-template-columns:repeat(3, 1fr); gap:22px;}
+  .opp-card{
+    background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+    padding:22px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+    transition:box-shadow .15s ease, transform .15s ease;
+  }
+  .opp-card:hover{box-shadow:var(--shadow-lg); transform:translateY(-2px);}
+  .badge{
+    display:inline-block; align-self:flex-start; font-size:0.76rem; font-weight:600;
+    padding:5px 11px; border-radius:20px; color:var(--green-dark); background:var(--green-light);
+  }
+  .opp-org{font-size:0.84rem; color:var(--text-muted); font-weight:500;}
+  .opp-title{font-size:1.1rem; font-weight:600; color:var(--charcoal);}
+  .opp-desc{font-size:0.92rem; color:var(--text-muted); flex-grow:1;}
+  .opp-meta{font-size:0.86rem; color:var(--charcoal); display:flex; flex-direction:column; gap:4px; margin-top:4px;}
+  .opp-card .btn{margin-top:12px;}
+
+  .load-more-wrap{display:flex; justify-content:center; margin-top:32px;}
+
+  /* Empty state */
+  .empty-state{text-align:center; padding:60px 20px; background:#fff; border:1px dashed var(--border); border-radius:var(--radius);}
+  .empty-state h3{font-size:1.2rem; margin-bottom:8px;}
+  .empty-state p{color:var(--text-muted); margin-bottom:22px; max-width:420px; margin-left:auto; margin-right:auto;}
+
+  /* Category cards */
+  .cat-grid{display:grid; grid-template-columns:repeat(4, 1fr); gap:18px;}
+  .cat-card{
+    background:#fff; border:1px solid var(--border); border-radius:var(--radius);
+    padding:22px 16px; text-align:center; transition:box-shadow .15s ease, transform .15s ease, border-color .15s;
+  }
+  .cat-card:hover{box-shadow:var(--shadow); transform:translateY(-2px); border-color:var(--green);}
+  .cat-emoji{font-size:1.7rem; margin-bottom:10px;}
+  .cat-card span{font-weight:600; font-size:0.92rem;}
+
+  /* How it works */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:26px;}
+  .step{text-align:center; padding:8px;}
+  .step-icon{
+    width:56px; height:56px; border-radius:50%; background:var(--green-light); color:var(--green-dark);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:1.3rem; font-weight:700;
+  }
+  .step h3{font-size:1.08rem; margin-bottom:8px;}
+  .step p{color:var(--text-muted); font-size:0.93rem;}
+
+  /* Impact */
+  .impact{background:var(--green-dark); color:#fff; padding:56px 0;}
+  .impact .section-head h2{color:#fff;}
+  .impact .section-head p{color:#DCEEE2;}
+  .impact-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px; text-align:center;}
+  .impact-num{font-size:2rem; font-weight:700; font-family:'Poppins',sans-serif;}
+  .impact-label{color:#CFE7D8; font-size:0.9rem; margin-top:4px;}
+  .impact-note{text-align:center; font-size:0.82rem; color:#BFE0CB; margin-top:28px;}
+
+  /* About */
+  .about-inner{max-width:680px; margin:0 auto; text-align:center;}
+  .about-inner p{color:var(--text-muted); margin-bottom:14px; font-size:1.02rem;}
+
+  /* CTA banner */
+  .cta-banner{background:var(--green); color:#fff; padding:56px 0; text-align:center;}
+  .cta-banner h2{font-size:1.8rem; margin-bottom:12px;}
+  .cta-banner p{color:#DDEFE3; max-width:520px; margin:0 auto 26px;}
+  .cta-banner .btn-primary{background:#fff; color:var(--green-dark);}
+  .cta-banner .btn-primary:hover{background:#EFF8F1;}
+
+  /* Footer */
+  footer{background:var(--charcoal); color:#CBD6CF; padding:44px 0 24px;}
+  .footer-top{display:flex; justify-content:space-between; flex-wrap:wrap; gap:30px; margin-bottom:26px;}
+  .footer-brand h3{color:#fff; font-size:1.05rem; margin-bottom:8px;}
+  .footer-brand p{font-size:0.88rem; max-width:280px;}
+  .footer-links{display:flex; gap:50px; flex-wrap:wrap;}
+  .footer-col h4{color:#fff; font-size:0.88rem; margin-bottom:12px;}
+  .footer-col a{display:block; font-size:0.86rem; padding:5px 0; color:#B7C4BB;}
+  .footer-col a:hover{color:#fff;}
+  .footer-bottom{border-top:1px solid #3A453F; padding-top:18px; font-size:0.8rem; color:#8FA096; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;}
+
+  /* Modal */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(38,48,43,0.5); display:none;
+    align-items:center; justify-content:center; padding:20px; z-index:100;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:#fff; border-radius:var(--radius); max-width:560px; width:100%;
+    max-height:88vh; overflow-y:auto; padding:30px; box-shadow:var(--shadow-lg);
+  }
+  .modal-head{display:flex; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:6px;}
+  .modal-close{font-size:1.4rem; color:var(--text-muted); background:none; line-height:1;}
+  .modal h2{font-size:1.3rem; margin-bottom:4px;}
+  .modal .opp-org{margin-bottom:14px;}
+  .modal-section{margin-top:16px;}
+  .modal-section h4{font-size:0.82rem; text-transform:none; color:var(--green-dark); font-weight:600; margin-bottom:6px;}
+  .modal-section p, .modal-section li{font-size:0.93rem; color:var(--charcoal);}
+  .modal-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px 20px; margin-top:16px;}
+  .modal-actions{display:flex; gap:12px; margin-top:26px;}
+  .modal-actions .btn{flex:1;}
+
+  /* Responsive */
+  @media (max-width: 980px){
+    .search-grid{grid-template-columns:1fr 1fr;}
+    .cards-grid{grid-template-columns:repeat(2,1fr);}
+    .cat-grid{grid-template-columns:repeat(3,1fr);}
+    .impact-grid{grid-template-columns:repeat(2,1fr); gap:28px;}
+  }
+  @media (max-width: 720px){
+    .nav-links, .nav-cta .btn-primary{display:none;}
+    .hamburger{display:flex;}
+    .hero h1{font-size:1.9rem;}
+    .search-grid{grid-template-columns:1fr;}
+    .cards-grid{grid-template-columns:1fr;}
+    .cat-grid{grid-template-columns:repeat(2,1fr);}
+    .steps{grid-template-columns:1fr;}
+    .impact-grid{grid-template-columns:repeat(2,1fr);}
+    .footer-top{flex-direction:column;}
+    .modal-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container nav">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-4.35-9.5-8.5C.5 8.5 2.5 5 6 5c2 0 3.5 1.2 4 2.2C10.5 6.2 12 5 14 5c3.5 0 5.5 3.5 3.5 7.5C19.5 16.65 12 21 12 21z"/></svg>
+      </div>
+      <span class="brand-name">Local Volunteer Finder</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#home">Home</a>
+      <a href="#search">Find Opportunities</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="nav-cta">
+      <a href="#search" class="btn btn-primary">Find Opportunities</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <div class="container">
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#home">Home</a>
+      <a href="#search">Find Opportunities</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#about">About</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <div class="container hero-inner">
+    <h1>Make a Difference in Your Community</h1>
+    <p>Find meaningful volunteer opportunities near you and give your time to causes that matter.</p>
+    <p class="tagline">Food banks • Animal shelters • Environmental cleanups • Education • Elderly care • And more</p>
+
+    <div class="search-card" id="search">
+      <form id="searchForm">
+        <div class="search-grid">
+          <div class="field">
+            <label for="location">Where do you want to volunteer?</label>
+            <div class="input-wrap">
+              <span class="pin" aria-hidden="true">📍</span>
+              <input type="text" id="location" placeholder="Enter city or ZIP/postal code">
+            </div>
+          </div>
+          <div class="field">
+            <label for="category">What are you interested in?</label>
+            <select id="category">
+              <option value="All Categories">All Categories</option>
+              <option value="Environment">Environment</option>
+              <option value="Animals">Animals</option>
+              <option value="Education">Education</option>
+              <option value="Elderly Care">Elderly Care</option>
+              <option value="Food & Hunger">Food & Hunger</option>
+              <option value="Homeless Support">Homeless Support</option>
+              <option value="Community Development">Community Development</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Youth & Children">Youth & Children</option>
+              <option value="Disaster Relief">Disaster Relief</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="day">Available Day</label>
+            <select id="day">
+              <option>Any Day</option>
+              <option>Monday</option>
+              <option>Tuesday</option>
+              <option>Wednesday</option>
+              <option>Thursday</option>
+              <option>Friday</option>
+              <option>Saturday</option>
+              <option>Sunday</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="time">Available Time</label>
+            <select id="time">
+              <option>Any Time</option>
+              <option>Morning</option>
+              <option>Afternoon</option>
+              <option>Evening</option>
+            </select>
+          </div>
+        </div>
+        <div class="search-actions">
+          <button type="submit" class="btn btn-primary btn-block">Search Volunteer Opportunities</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="results">
+  <div class="container">
+    <div class="section-head" style="margin-bottom:24px;">
+      <h2>Volunteer Opportunities Near You</h2>
+      <p>Discover local organizations looking for people like you.</p>
+    </div>
+    <div class="results-meta">
+      <span class="results-count" id="resultsCount">24 volunteer opportunities found</span>
+      <button class="btn btn-secondary" id="clearFiltersTop">Clear Filters</button>
+    </div>
+    <div id="resultsArea"></div>
+  </div>
+</section>
+
+<section class="section section-alt">
+  <div class="container">
+    <div class="section-head">
+      <h2>Volunteer by Cause</h2>
+      <p>Pick a cause and see matching opportunities instantly.</p>
+    </div>
+    <div class="cat-grid" id="categoryGrid"></div>
+  </div>
+</section>
+
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-head">
+      <h2>How It Works</h2>
+      <p>Three simple steps to start volunteering.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">1</div>
+        <h3>Tell Us What You Care About</h3>
+        <p>Choose your location and the causes that interest you.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">2</div>
+        <h3>Discover Local Opportunities</h3>
+        <p>Browse volunteer opportunities that match your preferences.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">3</div>
+        <h3>Make a Difference</h3>
+        <p>Contact an organization and start volunteering.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="impact">
+  <div class="container">
+    <div class="section-head">
+      <h2>Together, We Can Make an Impact</h2>
+      <p>Sample statistics shown for demonstration purposes.</p>
+    </div>
+    <div class="impact-grid">
+      <div><div class="impact-num">250+</div><div class="impact-label">Volunteer Opportunities</div></div>
+      <div><div class="impact-num">80+</div><div class="impact-label">Community Organizations</div></div>
+      <div><div class="impact-num">15+</div><div class="impact-label">Causes Supported</div></div>
+      <div><div class="impact-num">5,000+</div><div class="impact-label">Volunteer Hours</div></div>
+    </div>
+    <p class="impact-note">These are demo statistics for illustration, not verified figures.</p>
+  </div>
+</section>
+
+<section class="section" id="about">
+  <div class="container about-inner">
+    <h2 style="margin-bottom:16px;">Why Local Volunteer Finder?</h2>
+    <p>Finding a way to help shouldn't be difficult. Local Volunteer Finder makes it easier for people to discover volunteer opportunities based on where they live, what they care about, and when they are available.</p>
+    <p>Our goal is simple: connect people who want to help with organizations that are making a difference.</p>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <div class="container">
+    <h2>Ready to Make a Difference?</h2>
+    <p>Your time can make someone's day, improve your neighborhood, or help protect the planet. Find an opportunity that's right for you.</p>
+    <a href="#search" class="btn btn-primary">Find Volunteer Opportunities</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h3>Local Volunteer Finder</h3>
+        <p>Connecting people with opportunities to make a difference.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Site</h4>
+          <a href="#home">Home</a>
+          <a href="#search">Find Opportunities</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#about">About</a>
+        </div>
+        <div class="footer-col">
+          <h4>Contact</h4>
+          <a href="mailto:hello@localvolunteerfinder.example">Contact Us</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>This MVP uses sample volunteer opportunity data for demonstration purposes.</span>
+      <span>© 2026 Local Volunteer Finder.</span>
+    </div>
+  </div>
+</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" id="modalContent"></div>
+</div>
+
+<script>
+/* ---------- Dummy Data ---------- */
+const opportunities = [
+  {
+    id:1, org:"Green Earth Community", title:"Weekend Beach Cleanup", category:"Environment",
+    description:"Join our community team to help remove plastic waste and keep our local coastline clean. No previous experience required.",
+    city:"Chennai", state:"Tamil Nadu", zip:"600001", day:"Saturday", date:"Every Saturday", time:"Morning",
+    timeRange:"8:00 AM – 11:00 AM", ageReq:"14+", skills:"None required, just enthusiasm", volunteersNeeded:20,
+    email:"volunteer@greenearth.org", phone:"+91 98765 43210", website:"greenearth.org"
+  },
+  {
+    id:2, org:"Chennai Food Bank", title:"Food Distribution Volunteer", category:"Food & Hunger",
+    description:"Help sort, pack, and distribute food packages to families in need across the city.",
+    city:"Chennai", state:"Tamil Nadu", zip:"600020", day:"Sunday", date:"Every Sunday", time:"Morning",
+    timeRange:"9:00 AM – 12:00 PM", ageReq:"16+", skills:"Ability to lift up to 10kg", volunteersNeeded:15,
+    email:"volunteers@chennaifoodbank.org", phone:"+91 98765 11223", website:"chennaifoodbank.org"
+  },
+  {
+    id:3, org:"Paws & Care Shelter", title:"Animal Shelter Assistant", category:"Animals",
+    description:"Assist with feeding, grooming, and walking rescued dogs and cats at our shelter.",
+    city:"Coimbatore", state:"Tamil Nadu", zip:"641001", day:"Wednesday", date:"Every Wednesday", time:"Afternoon",
+    timeRange:"2:00 PM – 5:00 PM", ageReq:"15+", skills:"Comfort around animals", volunteersNeeded:8,
+    email:"hello@pawscare.org", phone:"+91 98765 44556", website:"pawscare.org"
+  },
+  {
+    id:4, org:"Bright Future Foundation", title:"After-School Tutor", category:"Education",
+    description:"Support underprivileged students with homework help and basic literacy skills in a friendly setting.",
+    city:"Madurai", state:"Tamil Nadu", zip:"625001", day:"Tuesday", date:"Every Tuesday & Thursday", time:"Evening",
+    timeRange:"4:00 PM – 6:00 PM", ageReq:"18+", skills:"Patience, basic teaching ability", volunteersNeeded:10,
+    email:"tutors@brightfuture.org", phone:"+91 98765 77889", website:"brightfuture.org"
+  },
+  {
+    id:5, org:"Silver Hearts Foundation", title:"Elderly Companion", category:"Elderly Care",
+    description:"Spend time with elderly residents at our care home — conversation, games, and simple companionship.",
+    city:"Salem", state:"Tamil Nadu", zip:"636001", day:"Friday", date:"Every Friday", time:"Afternoon",
+    timeRange:"3:00 PM – 5:00 PM", ageReq:"16+", skills:"Kindness and good listening skills", volunteersNeeded:12,
+    email:"connect@silverhearts.org", phone:"+91 98765 99001", website:"silverhearts.org"
+  },
+  {
+    id:6, org:"Community Kitchen Network", title:"Meal Preparation Volunteer", category:"Food & Hunger",
+    description:"Help prepare and pack warm meals for distribution to families experiencing food insecurity.",
+    city:"Bengaluru", state:"Karnataka", zip:"560001", day:"Monday", date:"Every Monday", time:"Morning",
+    timeRange:"7:00 AM – 10:00 AM", ageReq:"16+", skills:"Basic kitchen hygiene awareness", volunteersNeeded:18,
+    email:"kitchen@communitykitchen.org", phone:"+91 98765 22110", website:"communitykitchen.org"
+  },
+  {
+    id:7, org:"Clean City Initiative", title:"Neighborhood Cleanup", category:"Community Development",
+    description:"Team up with neighbors to clear litter, paint over graffiti, and tidy up shared public spaces.",
+    city:"Hyderabad", state:"Telangana", zip:"500001", day:"Saturday", date:"First Saturday of the month", time:"Morning",
+    timeRange:"8:00 AM – 11:00 AM", ageReq:"14+", skills:"None required", volunteersNeeded:25,
+    email:"info@cleancityinitiative.org", phone:"+91 98765 33221", website:"cleancityinitiative.org"
+  },
+  {
+    id:8, org:"Hope for Homeless", title:"Outreach Volunteer", category:"Homeless Support",
+    description:"Join our street outreach team distributing essentials like blankets, water, and hygiene kits.",
+    city:"Chennai", state:"Tamil Nadu", zip:"600004", day:"Thursday", date:"Every Thursday", time:"Evening",
+    timeRange:"6:00 PM – 8:00 PM", ageReq:"18+", skills:"Comfortable engaging with strangers", volunteersNeeded:10,
+    email:"outreach@hopeforhomeless.org", phone:"+91 98765 66778", website:"hopeforhomeless.org"
+  },
+  {
+    id:9, org:"Little Scholars Trust", title:"Children's Reading Program", category:"Youth & Children",
+    description:"Read stories and run fun literacy activities for children at our community learning center.",
+    city:"Tiruchirappalli", state:"Tamil Nadu", zip:"620001", day:"Saturday", date:"Every Saturday", time:"Morning",
+    timeRange:"10:00 AM – 12:00 PM", ageReq:"16+", skills:"Enjoys working with children", volunteersNeeded:9,
+    email:"read@littlescholars.org", phone:"+91 98765 88990", website:"littlescholars.org"
+  },
+  {
+    id:10, org:"Rescue & Relief Network", title:"Community Support Volunteer", category:"Disaster Relief",
+    description:"Assist with packing relief kits and coordinating supply drops for communities affected by flooding.",
+    city:"Chennai", state:"Tamil Nadu", zip:"600010", day:"Sunday", date:"On call, weekends", time:"Afternoon",
+    timeRange:"1:00 PM – 4:00 PM", ageReq:"18+", skills:"Physically able to lift supplies", volunteersNeeded:14,
+    email:"relief@rescuenetwork.org", phone:"+91 98765 55443", website:"rescuenetwork.org"
+  },
+  {
+    id:11, org:"Rural Learning Project", title:"Weekend Teaching Volunteer", category:"Education",
+    description:"Travel to nearby villages to teach basic math and English to children on weekends.",
+    city:"Coimbatore", state:"Tamil Nadu", zip:"641002", day:"Sunday", date:"Every Sunday", time:"Morning",
+    timeRange:"9:00 AM – 12:00 PM", ageReq:"18+", skills:"Basic teaching skills, own transport helpful", volunteersNeeded:6,
+    email:"teach@rurallearning.org", phone:"+91 98765 12121", website:"rurallearning.org"
+  },
+  {
+    id:12, org:"TreeLife Foundation", title:"Tree Planting Volunteer", category:"Environment",
+    description:"Help plant native saplings in urban green spaces to restore local tree cover.",
+    city:"Bengaluru", state:"Karnataka", zip:"560002", day:"Saturday", date:"Every Saturday", time:"Morning",
+    timeRange:"7:30 AM – 10:00 AM", ageReq:"12+ (with guardian)", skills:"None required", volunteersNeeded:30,
+    email:"plant@treelife.org", phone:"+91 98765 34343", website:"treelife.org"
+  },
+  {
+    id:13, org:"Care Bridge Health Network", title:"Hospital Support Volunteer", category:"Healthcare",
+    description:"Assist patients and families with wayfinding, comfort visits, and light administrative support.",
+    city:"Hyderabad", state:"Telangana", zip:"500034", day:"Wednesday", date:"Every Wednesday", time:"Afternoon",
+    timeRange:"1:00 PM – 4:00 PM", ageReq:"18+", skills:"Comfortable in hospital settings", volunteersNeeded:7,
+    email:"volunteer@carebridge.org", phone:"+91 98765 90909", website:"carebridge.org"
+  },
+  {
+    id:14, org:"Second Chance Thrift", title:"Donation Sorting Volunteer", category:"Other",
+    description:"Sort and organize donated clothing and household items before they go to families in need.",
+    city:"Madurai", state:"Tamil Nadu", zip:"625002", day:"Monday", date:"Every Monday", time:"Afternoon",
+    timeRange:"2:00 PM – 5:00 PM", ageReq:"14+", skills:"None required", volunteersNeeded:11,
+    email:"sort@secondchance.org", phone:"+91 98765 65432", website:"secondchance.org"
+  },
+  {
+    id:15, org:"Blue Ocean Trust", title:"River Cleanup Crew", category:"Environment",
+    description:"Help clear plastic and debris from riverbanks to protect local wildlife and water quality.",
+    city:"Salem", state:"Tamil Nadu", zip:"636005", day:"Sunday", date:"Every Sunday", time:"Morning",
+    timeRange:"7:00 AM – 10:00 AM", ageReq:"14+", skills:"None required", volunteersNeeded:22,
+    email:"cleanup@blueoceantrust.org", phone:"+91 98765 10293", website:"blueoceantrust.org"
+  },
+  {
+    id:16, org:"Furry Friends Rescue", title:"Dog Walking Volunteer", category:"Animals",
+    description:"Give shelter dogs exercise, socialization, and affection through supervised daily walks.",
+    city:"Hyderabad", state:"Telangana", zip:"500018", day:"Tuesday", date:"Every Tuesday", time:"Evening",
+    timeRange:"5:00 PM – 7:00 PM", ageReq:"16+", skills:"Comfortable walking dogs", volunteersNeeded:10,
+    email:"walk@furryfriends.org", phone:"+91 98765 20394", website:"furryfriends.org"
+  },
+  {
+    id:17, org:"Numeracy Now", title:"Weekend Math Mentor", category:"Education",
+    description:"Run small-group math sessions to help middle-school students build confidence with numbers.",
+    city:"Bengaluru", state:"Karnataka", zip:"560034", day:"Saturday", date:"Every Saturday", time:"Afternoon",
+    timeRange:"1:00 PM – 3:00 PM", ageReq:"17+", skills:"Comfortable with school-level math", volunteersNeeded:8,
+    email:"mentors@numeracynow.org", phone:"+91 98765 30495", website:"numeracynow.org"
+  },
+  {
+    id:18, org:"Golden Years Society", title:"Home Visit Volunteer", category:"Elderly Care",
+    description:"Visit isolated seniors at home for conversation, light errands, and a friendly check-in.",
+    city:"Chennai", state:"Tamil Nadu", zip:"600017", day:"Wednesday", date:"Every Wednesday", time:"Morning",
+    timeRange:"10:00 AM – 12:00 PM", ageReq:"18+", skills:"Reliable and compassionate", volunteersNeeded:9,
+    email:"visits@goldenyears.org", phone:"+91 98765 40596", website:"goldenyears.org"
+  },
+  {
+    id:19, org:"Warm Meals Trust", title:"Soup Kitchen Volunteer", category:"Food & Hunger",
+    description:"Cook and serve hot meals to families and individuals facing food insecurity in the city.",
+    city:"Tiruchirappalli", state:"Tamil Nadu", zip:"620005", day:"Thursday", date:"Every Thursday", time:"Evening",
+    timeRange:"5:30 PM – 8:00 PM", ageReq:"16+", skills:"Basic food handling awareness", volunteersNeeded:16,
+    email:"kitchen@warmmeals.org", phone:"+91 98765 50697", website:"warmmeals.org"
+  },
+  {
+    id:20, org:"Shelter Bridge", title:"Night Shelter Support", category:"Homeless Support",
+    description:"Help set up bedding, serve meals, and welcome guests at a winter night shelter.",
+    city:"Coimbatore", state:"Tamil Nadu", zip:"641009", day:"Friday", date:"Every Friday", time:"Evening",
+    timeRange:"7:00 PM – 9:00 PM", ageReq:"18+", skills:"Warm, non-judgmental attitude", volunteersNeeded:12,
+    email:"shelter@shelterbridge.org", phone:"+91 98765 60798", website:"shelterbridge.org"
+  },
+  {
+    id:21, org:"Youth Spark Collective", title:"Weekend Sports Coach", category:"Youth & Children",
+    description:"Coach basic sports drills and teamwork games for children in an after-school program.",
+    city:"Madurai", state:"Tamil Nadu", zip:"625007", day:"Saturday", date:"Every Saturday", time:"Morning",
+    timeRange:"9:00 AM – 11:00 AM", ageReq:"16+", skills:"Basic sports knowledge, energetic", volunteersNeeded:13,
+    email:"coach@youthspark.org", phone:"+91 98765 70899", website:"youthspark.org"
+  },
+  {
+    id:22, org:"Neighborhood Roots", title:"Community Garden Volunteer", category:"Community Development",
+    description:"Help maintain a shared community garden that supplies fresh produce to local families.",
+    city:"Chennai", state:"Tamil Nadu", zip:"600028", day:"Sunday", date:"Every Sunday", time:"Afternoon",
+    timeRange:"3:00 PM – 5:00 PM", ageReq:"12+ (with guardian)", skills:"None required", volunteersNeeded:15,
+    email:"garden@neighborhoodroots.org", phone:"+91 98765 80900", website:"neighborhoodroots.org"
+  },
+  {
+    id:23, org:"Wellness Access Network", title:"Health Camp Volunteer", category:"Healthcare",
+    description:"Support free community health check-up camps with registration, guidance, and translation.",
+    city:"Bengaluru", state:"Karnataka", zip:"560043", day:"Sunday", date:"Monthly", time:"Morning",
+    timeRange:"8:00 AM – 1:00 PM", ageReq:"18+", skills:"Organized, comfortable in busy settings", volunteersNeeded:20,
+    email:"camps@wellnessaccess.org", phone:"+91 98765 91011", website:"wellnessaccess.org"
+  },
+  {
+    id:24, org:"Rapid Response Volunteers", title:"Relief Kit Packing Volunteer", category:"Disaster Relief",
+    description:"Pack emergency kits with food, water, and first-aid supplies ready for rapid deployment.",
+    city:"Hyderabad", state:"Telangana", zip:"500028", day:"Saturday", date:"On call, weekends", time:"Morning",
+    timeRange:"9:00 AM – 12:00 PM", ageReq:"18+", skills:"Able to lift supplies, works well in teams", volunteersNeeded:18,
+    email:"pack@rapidresponse.org", phone:"+91 98765 12131", website:"rapidresponse.org"
+  }
+];
+
+const categories = [
+  {emoji:"🌱", name:"Environment"},
+  {emoji:"🐾", name:"Animals"},
+  {emoji:"📚", name:"Education"},
+  {emoji:"❤️", name:"Elderly Care"},
+  {emoji:"🍲", name:"Food & Hunger"},
+  {emoji:"🏠", name:"Homeless Support"},
+  {emoji:"👨‍👩‍👧", name:"Youth & Children"},
+  {emoji:"🏘️", name:"Community Development"}
+];
+
+const categoryColors = {
+  "Environment":"#E4F3E8", "Animals":"#FDF1E0", "Education":"#E7EEFB",
+  "Elderly Care":"#FBE7EC", "Food & Hunger":"#FFF3D6", "Homeless Support":"#EAE4F7",
+  "Community Development":"#DFF5F0", "Healthcare":"#E1F2F6", "Youth & Children":"#F5E9F9",
+  "Disaster Relief":"#FBE3DF", "Other":"#EFEFEF"
+};
+
+/* ---------- Render category filter cards ---------- */
+const categoryGrid = document.getElementById('categoryGrid');
+categories.forEach(c => {
+  const el = document.createElement('button');
+  el.className = 'cat-card';
+  el.innerHTML = `<div class="cat-emoji">${c.emoji}</div><span>${c.name}</span>`;
+  el.addEventListener('click', () => {
+    document.getElementById('category').value = c.name;
+    runSearch();
+    document.getElementById('results').scrollIntoView({behavior:'smooth'});
+  });
+  categoryGrid.appendChild(el);
+});
+
+/* ---------- Card + Modal rendering ---------- */
+function badgeStyle(cat){
+  const bg = categoryColors[cat] || '#EEF3EF';
+  return `background:${bg}; color:var(--green-dark);`;
+}
+
+function cardHTML(o){
+  return `
+    <div class="opp-card">
+      <span class="badge" style="${badgeStyle(o.category)}">${o.category}</span>
+      <div class="opp-org">${o.org}</div>
+      <div class="opp-title">${o.title}</div>
+      <p class="opp-desc">${o.description}</p>
+      <div class="opp-meta">
+        <span>📍 ${o.city}, ${o.state}</span>
+        <span>📅 ${o.day}</span>
+        <span>🕘 ${o.timeRange}</span>
+      </div>
+      <button class="btn btn-outline" data-id="${o.id}">View Opportunity</button>
+    </div>`;
+}
+
+const PAGE_SIZE = 9;
+let currentResults = opportunities;
+let visibleCount = PAGE_SIZE;
+
+function renderResults(list){
+  currentResults = list;
+  visibleCount = PAGE_SIZE;
+  paintResults();
+}
+
+function paintResults(){
+  const list = currentResults;
+  const area = document.getElementById('resultsArea');
+  const count = document.getElementById('resultsCount');
+  count.textContent = `${list.length} volunteer opportunit${list.length === 1 ? 'y' : 'ies'} found near you`;
+
+  if(list.length === 0){
+    area.innerHTML = `
+      <div class="empty-state">
+        <h3>No volunteer opportunities found</h3>
+        <p>Try changing your location, category, or availability filters to discover more opportunities.</p>
+        <button class="btn btn-primary" id="clearFiltersEmpty">Clear Filters</button>
+      </div>`;
+    document.getElementById('clearFiltersEmpty').addEventListener('click', clearFilters);
+    return;
+  }
+
+  const shown = list.slice(0, visibleCount);
+  const hasMore = list.length > visibleCount;
+
+  area.innerHTML = `
+    <div class="cards-grid">${shown.map(cardHTML).join('')}</div>
+    ${hasMore ? `<div class="load-more-wrap"><button class="btn btn-secondary" id="loadMoreBtn">Load More Opportunities</button></div>` : ''}
+  `;
+  area.querySelectorAll('[data-id]').forEach(btn => {
+    btn.addEventListener('click', () => openModal(Number(btn.dataset.id)));
+  });
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  if(loadMoreBtn){
+    loadMoreBtn.addEventListener('click', () => {
+      visibleCount += PAGE_SIZE;
+      paintResults();
+    });
+  }
+}
+
+function openModal(id){
+  const o = opportunities.find(x => x.id === id);
+  if(!o) return;
+  const content = document.getElementById('modalContent');
+  content.innerHTML = `
+    <div class="modal-head">
+      <div>
+        <h2>${o.title}</h2>
+        <div class="opp-org">${o.org}</div>
+      </div>
+      <button class="modal-close" id="modalCloseBtn" aria-label="Close">&times;</button>
+    </div>
+    <span class="badge" style="${badgeStyle(o.category)}">${o.category}</span>
+    <div class="modal-section">
+      <h4>About this opportunity</h4>
+      <p>${o.description}</p>
+    </div>
+    <div class="modal-grid">
+      <div><h4>Location</h4><p>${o.city}, ${o.state} ${o.zip}</p></div>
+      <div><h4>Day</h4><p>${o.day}</p></div>
+      <div><h4>Date</h4><p>${o.date}</p></div>
+      <div><h4>Time</h4><p>${o.timeRange}</p></div>
+      <div><h4>Age requirement</h4><p>${o.ageReq}</p></div>
+      <div><h4>Volunteers needed</h4><p>${o.volunteersNeeded}</p></div>
+    </div>
+    <div class="modal-section">
+      <h4>Skills required</h4>
+      <p>${o.skills}</p>
+    </div>
+    <div class="modal-section">
+      <h4>Contact</h4>
+      <p>${o.email}<br>${o.phone}<br>${o.website}</p>
+    </div>
+    <div class="modal-actions">
+      <a class="btn btn-primary" href="mailto:${o.email}?subject=${encodeURIComponent('Volunteering interest: ' + o.title)}">Contact Organization</a>
+      <button class="btn btn-secondary" id="modalCloseBtn2">Close</button>
+    </div>
+  `;
+  document.getElementById('modalOverlay').classList.add('open');
+  document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+  document.getElementById('modalCloseBtn2').addEventListener('click', closeModal);
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+  if(e.target.id === 'modalOverlay') closeModal();
+});
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'Escape') closeModal();
+});
+
+/* ---------- Search / filter logic ---------- */
+function runSearch(){
+  const loc = document.getElementById('location').value.trim().toLowerCase();
+  const cat = document.getElementById('category').value;
+  const day = document.getElementById('day').value;
+  const time = document.getElementById('time').value;
+
+  const filtered = opportunities.filter(o => {
+    const locMatch = !loc || o.city.toLowerCase().includes(loc) || o.state.toLowerCase().includes(loc) || o.zip.includes(loc);
+    const catMatch = cat === 'All Categories' || o.category === cat;
+    const dayMatch = day === 'Any Day' || o.day === day;
+    const timeMatch = time === 'Any Time' || o.time === time;
+    return locMatch && catMatch && dayMatch && timeMatch;
+  });
+
+  renderResults(filtered);
+}
+
+function clearFilters(){
+  document.getElementById('location').value = '';
+  document.getElementById('category').value = 'All Categories';
+  document.getElementById('day').value = 'Any Day';
+  document.getElementById('time').value = 'Any Time';
+  renderResults(opportunities);
+}
+
+document.getElementById('searchForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  runSearch();
+  document.getElementById('results').scrollIntoView({behavior:'smooth'});
+});
+document.getElementById('clearFiltersTop').addEventListener('click', clearFilters);
+
+/* ---------- Mobile nav ---------- */
+const hamburgerBtn = document.getElementById('hamburgerBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburgerBtn.addEventListener('click', () => {
+  const open = mobileMenu.classList.toggle('open');
+  hamburgerBtn.setAttribute('aria-expanded', open);
+});
+mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  mobileMenu.classList.remove('open');
+}));
+
+/* ---------- Initial render ---------- */
+renderResults(opportunities);
+</script>
+</body>
+</html>
